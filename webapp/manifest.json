@@ -1,0 +1,154 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "registermissingscope",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.15.0",
+      "toolsId": "599a89ed-5b48-410a-9980-21b856515bf3"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/localisation/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "scopeassessment-manage": {
+          "semanticObject": "registermissingscope",
+          "action": "manage",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.128.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "registermissingscope.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "countryModel" : {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri" : "./model/data.json"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "async": true,
+        "viewPath": "registermissingscope.view",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "clearControlAggregation": false
+      },
+      "routes": [
+        {
+          "name": "RouteRMS",
+          "pattern": ":?query:",
+          "target": [
+            "Targetrms"
+          ]
+        },
+        {
+          "name": "RouteCRMS",
+          "pattern": "crms",
+          "target": [
+            "TargetCRMS"
+          ]
+        }
+      ],
+      "targets": {
+        "Targetrms": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "rms",
+          "viewName": "rms"
+        },
+        "TargetCRMS": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "createRms",
+          "viewName": "createRms"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "registermissingscope.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "App"
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "registermissingscope"
+  }
+}
