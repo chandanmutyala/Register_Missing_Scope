@@ -24,12 +24,56 @@
  
             <ToolbarSpacer />
         </content>
- 
+        <Panel >
+       <MultiComboBox
+            id="opportunityComboBox"
+                selectionChange="onComboBoxSelectionChange"
+                placeholder="Select Opportunity"
+                width="300px"
+            items="{
+                        path: '/MissingScopeItems',
+                        sorter: { path: '' }
+                    }">
+            <core:Item key="{oppurtunityNumber}" text="{oppurtunityNumber}"/>
+        </MultiComboBox>
+        <MultiComboBox
+            id="customerComboBox"
+                selectionChange="onComboBoxSelectionChange"
+                placeholder="Select Customer"
+                width="300px"
+            items="{
+                        path: '/MissingScopeItems',
+                        sorter: { path: '' }
+                    }">
+            <core:Item key="{customerName}" text="{customerName}"/>
+        </MultiComboBox>
+        <MultiComboBox
+            id="scopeIDComboBox"
+                selectionChange="onComboBoxSelectionChange"
+                placeholder="Select ScopeItemID"
+                width="300px"
+            items="{
+                        path: '/MissingScopeItems',
+                        sorter: { path: '' }
+                    }">
+            <core:Item key="{ScopeItemID}" text="{ScopeItemID}"/>
+        </MultiComboBox>
+        <ToolbarSpacer />
+<Button class="export" text="Export"
+type="Emphasized"
+press="onExportPress"></Button>
+</Panel>
+        
+        
+        
+        
+        
+        
         <Table
             id="idProductsTable"
             inset="false"
             growing="true"
-           
+            mode="MultiSelect"
             growingScrollToLoad="true"
             items="{
             path: '/MissingScopeItems'
@@ -94,7 +138,7 @@
                         <Text text="{customerName}" />
                         <!-- ComboBox for brandGuardianStatus -->
                         <!-- ComboBox for brandGuardianStatus -->
-                        <ComboBox
+                        <!-- <ComboBox
                             id="brand"
                             selectedKey="{brandGuardianStatus}"
                               change="onBrandComboBoxChange"
@@ -112,9 +156,10 @@
                                 key="Rejected"
                                 text="Rejected"
                             />
-                        </ComboBox>
-                        <!-- ComboBox for globalServicesStatus -->
-                        <ComboBox
+                        </ComboBox> -->
+                        <Text text="{brandGuardianStatus}" />
+                       
+                        <!-- <ComboBox
                             id="global"
                             selectedKey="{globalServicesStatus}"
                            
@@ -133,8 +178,8 @@
                                 text="Rejected"
                        
                             />
-                        </ComboBox>
- 
+                        </ComboBox> -->
+                         <Text text="{globalServicesStatus}" />
                         <Text text="{ScopeItemID}" />
                         <Text text="{Description}" />
                         <Text text="{priority}" />

@@ -2,9 +2,12 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageBox",
-    "sap/m/MessageToast"
+    "sap/m/MessageToast",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+    "sap/ui/export/Spreadsheet"
 ],
-    function (Controller,MessageBox,MessageToast) {
+    function (Controller,MessageBox,MessageToast,Filter,FilterOperator,Spreadsheet) {
         "use strict";
  
         return Controller.extend("registermissingscope.controller.rms", {
@@ -175,6 +178,117 @@ sap.ui.define([
                             });
                         }
                     }.bind(this) // Make sure the correct 'this' context is maintained
+                });
+            },
+            onComboBoxSelectionChange: function () {
+                // Get references to the comboboxes and table
+                var oOpportunityComboBox = this.byId("opportunityComboBox");
+                var oCustomerComboBox = this.byId("customerComboBox");
+                var oScopeIDComboBox = this.byId("scopeIDComboBox");
+                var oTable = this.byId("idProductsTable");
+                var oBinding = oTable.getBinding("items");
+    
+                // Create an array to hold filters
+                var aFilters = [];
+    
+                // Get selected values from the Opportunity combobox
+                var aSelectedOpportunities = oOpportunityComboBox.getSelectedKeys();
+                if (aSelectedOpportunities.length > 0) {
+                    // Create filter for opportunityNumber
+                    var oOpportunityFilter = new Filter({
+                        path: "oppurtunityNumber",
+                        operator: FilterOperator.EQ,
+                        value1: aSelectedOpportunities
+                    });
+                    aFilters.push(oOpportunityFilter);
+                }
+    
+                // Get selected values from the Customer combobox
+                var aSelectedCustomers = oCustomerComboBox.getSelectedKeys();
+                if (aSelectedCustomers.length > 0) {
+                    // Create filter for customerName
+                    var oCustomerFilter = new Filter({
+                        path: "customerName",
+                        operator: FilterOperator.EQ,
+                        value1: aSelectedCustomers
+                    });
+                    aFilters.push(oCustomerFilter);
+                }
+    
+                // Get selected values from the ScopeID combobox
+                var aSelectedScopeIDs = oScopeIDComboBox.getSelectedKeys();
+                if (aSelectedScopeIDs.length > 0) {
+                    // Create filter for ScopeItemID
+                    var oScopeIDFilter = new Filter({
+                        path: "ScopeItemID",
+                        operator: FilterOperator.EQ,
+                        value1: aSelectedScopeIDs
+                    });
+                    aFilters.push(oScopeIDFilter);
+                }
+    
+                // Apply the filters to the table binding
+                oBinding.filter(aFilters);
+            },
+            onExportPress: function () {
+                // Get reference to the table
+                var oTable = this.byId("idProductsTable");
+                var aSelectedItems = oTable.getSelectedItems();
+    
+                // Check if any rows are selected
+                if (aSelectedItems.length === 0) {
+                    sap.m.MessageToast.show("Please select at least one row to export.");
+                    return;
+                }
+    
+                // Prepare the export data
+                var aExportData = [];
+                aSelectedItems.forEach(function (oItem) {
+                    var oContext = oItem.getBindingContext();
+                    var oData = oContext.getObject(); // Get the row data
+    
+                    aExportData.push({
+                        "Registered ID": oData.autoId,
+                        "Opportunity": oData.oppurtunityNumber,
+                        "Customer": oData.customerName,
+                        "Brand Guardian Status": oData.brandGuardianStatus,
+                        "Global Services Status": oData.globalServicesStatus,
+                        "Scope ID": oData.ScopeItemID,
+                        "Scope Description": oData.Description,
+                        "Priority": oData.priority,
+                        "Country": oData.country,
+                        "Created By": oData.createdBy,
+                        "Created On": oData.createdOn
+                    });
+                });
+    
+                // Define column structure for export
+                var aCols = [
+                    { label: "Registered ID", property: "Registered ID" },
+                    { label: "Opportunity", property: "Opportunity" },
+                    { label: "Customer", property: "Customer" },
+                    { label: "Brand Guardian Status", property: "Brand Guardian Status" },
+                    { label: "Global Services Status", property: "Global Services Status" },
+                    { label: "Scope ID", property: "Scope ID" },
+                    { label: "Scope Description", property: "Scope Description" },
+                    { label: "Priority", property: "Priority" },
+                    { label: "Country", property: "Country" },
+                    { label: "Created By", property: "Created By" },
+                    { label: "Created On", property: "Created On" }
+                ];
+    
+                // Create export settings
+                var oSettings = {
+                    workbook: { columns: aCols },
+                    dataSource: aExportData,
+                    fileName: "ExportedData.xlsx",
+                    worker: false // Disable worker due to CSP restrictions in some environments
+                };
+    
+                // Create a new Spreadsheet and start the export
+                var oSpreadsheet = new Spreadsheet(oSettings);
+                oSpreadsheet.build().finally(function () {
+                    oSpreadsheet.destroy();
                 });
             }
            

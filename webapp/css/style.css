@@ -131,3 +131,8 @@
 #__dialog0-searchField{
     display: none !important;
 }
+
+
+.export{
+    float: right !important;
+}
