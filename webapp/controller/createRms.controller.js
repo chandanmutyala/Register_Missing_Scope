@@ -9,82 +9,153 @@ function (Controller, JSONModel,Filter,FilterOperator) {
  
     return Controller.extend("registermissingscope.controller.createRms", {
         onInit: function () {
-
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("RouteCRMS").attachPatternMatched(this.onObjectMatched, this);
-
         
-           var oModel=this.getOwnerComponent().getModel("countryModel");
-            this.getView().setModel(oModel,"countryModel");
- 
+            var oModel = this.getOwnerComponent().getModel("countryModel");
+            this.getView().setModel(oModel, "countryModel");
+        
             var oModelTable = this.getOwnerComponent().getModel("tableModel") || new JSONModel({
                 ProductCollection: []
             });
             this.getOwnerComponent().setModel(oModelTable, "tableModel");
+            this.aSelectedScopeIds = [];
+        
+            // Listen to changes in the MultiInput tokens (added or removed)
+            var oMultiInput = this.byId("scopeIdMultiInput");
+            oMultiInput.attachTokenUpdate(this._onTokenUpdate, this);
         },
-        onObjectMatched : function(){
+        
+        onObjectMatched: function () {
             var oTable = this.getView().byId("Form1");
             var oBindings = oTable.getBinding("items");
-            oBindings.refresh() ;       
+            oBindings.refresh();
         },
-       
-            onNavBack: function () {
-                var oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("RouteRMS");
-            },
-        onComboBoxSelectionChange: function (oEvent) {
- 
-            var oMultiComboBox = this.byId("scopeIdComboBoxTable"); // Get the MultiComboBox instance
- 
-            var aSelectedItems = oMultiComboBox.getSelectedItems(); // Get selected items
- 
-            // Create an array to hold all the selected ScopeItemIDs
- 
-            var aFilters = [];
- 
-            // Iterate over the selected items
- 
-            aSelectedItems.forEach(function (oSelectedItem) {
- 
-                var sScopeItemID = oSelectedItem.getKey();
- 
-                // Create a filter for each selected ScopeItemID
- 
-                var oFilter = new Filter("ScopeItemID", FilterOperator.EQ, sScopeItemID);
- 
-                aFilters.push(oFilter);
- 
-            });
- 
-            // Combine the filters using OR condition
- 
-            var oCombinedFilter = new Filter({
- 
-                filters: aFilters,
- 
-                and: false // 'or' condition, meaning any selected ScopeItemID will match
- 
-            });
- 
-            // Apply the filter to the table's binding
- 
-            var oTable = this.byId("idProductsTaable");
- 
-            var oBinding = oTable.getBinding("items");
- 
-            // If there are selected items, apply the filter, otherwise, clear filters
- 
-            if (aFilters.length > 0) {
- 
-                oBinding.filter(oCombinedFilter);
- 
-            } else {
- 
-                oBinding.filter([]); // Clear filters when nothing is selected
- 
+        
+        onNavBack: function () {
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.navTo("RouteRMS");
+        },
+        
+        _onTokenUpdate: function (oEvent) {
+            var oMultiInput = oEvent.getSource();
+            var aRemovedTokens = oEvent.getParameter("removedTokens");
+            var aAddedTokens = oEvent.getParameter("addedTokens");
+        
+            // Check if the MultiInput source is valid
+            if (!oMultiInput) {
+                console.error("MultiInput source is not valid.");
+                return;
             }
- 
+        
+            // Handle removed tokens
+            if (aRemovedTokens && aRemovedTokens.length > 0) {
+                aRemovedTokens.forEach(function (oToken) {
+                    var sRemovedKey = oToken.getKey();
+                    var iIndex = this.aSelectedScopeIds.indexOf(sRemovedKey);
+                    if (iIndex > -1) {
+                        this.aSelectedScopeIds.splice(iIndex, 1);
+                    }
+                }, this);
+            }
+        
+            // Handle added tokens
+            if (aAddedTokens && aAddedTokens.length > 0) {
+                aAddedTokens.forEach(function (oToken) {
+                    var sAddedKey = oToken.getKey();
+                    if (this.aSelectedScopeIds.indexOf(sAddedKey) === -1) {
+                        this.aSelectedScopeIds.push(sAddedKey);
+                    }
+                }, this);
+            }
+        
+            console.log("Updated Selected Scope IDs Array:", this.aSelectedScopeIds);  // Log for debugging
+        
+            // Immediately apply filters based on the updated aSelectedScopeIds
+            this.onComboBoxSelectionChange();
         },
+        
+        onValueHelpRequest: function () {
+            if (!this._oValueHelpDialog) {
+                this._oValueHelpDialog = new sap.m.SelectDialog({
+                    title: "Select Scope ID",
+                    multiSelect: true,
+                    items: {
+                        path: '/ScopeItems',
+                        template: new sap.m.StandardListItem({
+                            title: "{ScopeItemID}",
+                            description: "{ScopeItemDescription}"
+                        })
+                    },
+                    confirm: this._handleValueHelpClose.bind(this),
+                    cancel: this._handleValueHelpClose.bind(this)
+                });
+                this.getView().addDependent(this._oValueHelpDialog);
+            }
+        
+            this._oValueHelpDialog.open();
+        },
+        
+        _handleValueHelpClose: function (oEvent) {
+            var aSelectedItems = oEvent.getParameter("selectedItems");
+            var oMultiInput = this.byId("scopeIdMultiInput");
+        
+            // Clear the previous selections
+            this.aSelectedScopeIds = [];
+            oMultiInput.removeAllTokens();
+        
+            if (aSelectedItems && aSelectedItems.length > 0) {
+                aSelectedItems.forEach(function (oItem) {
+                    var sScopeItemID = oItem.getTitle();
+        
+                    oMultiInput.addToken(new sap.m.Token({
+                        key: sScopeItemID,
+                        text: sScopeItemID
+                    }));
+        
+                    this.aSelectedScopeIds.push(sScopeItemID);
+                }, this);
+            }
+        
+            // Apply combined filters whenever the Scope ID is changed
+            this.onComboBoxSelectionChange();
+        },
+        
+        onComboBoxSelectionChange: function () {
+            var aFilters = [];
+        
+            // Create filters based on selected scope IDs
+            if (this.aSelectedScopeIds.length > 0) {
+                var aScopeFilters = this.aSelectedScopeIds.map(function (sScopeItemID) {
+                    return new sap.ui.model.Filter("ScopeItemID", sap.ui.model.FilterOperator.EQ, sScopeItemID);
+                });
+        
+                // Combine scope filters with OR logic
+                var oScopeIDFilter = new sap.ui.model.Filter({
+                    filters: aScopeFilters,
+                    and: false  // Use OR condition for Scope IDs
+                });
+        
+                aFilters.push(oScopeIDFilter);
+            }
+        
+            // Get the table binding and apply the combined filters
+            var oTable = this.byId("idProductsTaable"); // Ensure this ID is correct
+            var oBinding = oTable.getBinding("items");
+        
+            if (oBinding) {
+                if (aFilters.length > 0) {
+                    console.log("Applying Combined Filter:", aFilters);  // Log filter for debugging
+                    oBinding.filter(aFilters, sap.ui.model.FilterType.Application);
+                } else {
+                    console.log("Clearing filters.");  // Log for debugging
+                    oBinding.filter([]); // Clear filters when nothing is selected
+                }
+            } else {
+                console.error("Table binding not found.");  // Debugging information
+            }
+        },
+        
  
  
 //         onSavePress: function () {

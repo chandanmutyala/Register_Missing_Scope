@@ -160,7 +160,7 @@
                         <f:FormElement label="Country">
                             <f:fields>
                                 <MultiComboBox id="countryBox" width="100%" items="{path: 'countryModel>/countries'}">
-                                    <core:Item key="{countryModel>code}" text="{countryModel>code}" />
+                                    <core:Item key="{countryModel>name}" text="{countryModel>name}" />
                                 </MultiComboBox>
                             </f:fields>
                         </f:FormElement>
@@ -181,7 +181,7 @@
             <Panel>
             <Title class="text" text="Step 3 : Scope Selection" ></Title>
                 <VBox class="sapUiSmallMargin">
-                <MultiComboBox
+                <!-- <MultiComboBox
             id="scopeIdComboBoxTable"
                 selectionChange="onComboBoxSelectionChange"
                 placeholder="Select Scope ID"
@@ -190,7 +190,17 @@
                 path: '/ScopeItems'
             }">
             <core:Item key="{ScopeItemID}" text="{ScopeItemID}"/>
-        </MultiComboBox>
+        </MultiComboBox> -->
+        
+<MultiInput
+    id="scopeIdMultiInput"
+    showValueHelp="true"
+    valueHelpRequest="onValueHelpRequest"
+    placeholder="Select Scope IDs"
+    tokenUpdate=".onTokenChange" 
+    width="300px"
+    >
+</MultiInput>
                
                     <Table
                         id="idProductsTaable"

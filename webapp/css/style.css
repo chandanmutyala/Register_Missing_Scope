@@ -126,3 +126,8 @@
  margin-bottom: auto;
 }
 
+
+
+#__dialog0-searchField{
+    display: none !important;
+}
