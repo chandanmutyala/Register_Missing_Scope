@@ -1,26 +1,3 @@
- 
-<!--
-<mvc:View controllerName="localisation.controller.createRms"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m">
-    <Page id="createRms" title="{i18n>title}">
-    <content>
-       
-            <Toolbar>
-               
-                <ToolbarSpacer/>
-                <Title text="Create Missing Scope" level="H2"/>
-                <ToolbarSpacer/>
-            </Toolbar>
- 
-       
-   
-        </content>
-    </Page>
-</mvc:View> -->
- 
- 
- 
 <mvc:View
     controllerName="registermissingscope.controller.createRms"
     xmlns:html="http://www.w3.org/1999/xhtml"

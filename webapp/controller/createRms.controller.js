@@ -79,6 +79,7 @@ function (Controller, JSONModel,Filter,FilterOperator) {
             if (!this._oValueHelpDialog) {
                 this._oValueHelpDialog = new sap.m.SelectDialog({
                     title: "Select Scope ID",
+                    search: this._handleValueHelpSearch.bind(this),
                     multiSelect: true,
                     items: {
                         path: '/ScopeItems',
@@ -94,6 +95,27 @@ function (Controller, JSONModel,Filter,FilterOperator) {
             }
         
             this._oValueHelpDialog.open();
+        },
+        _handleValueHelpSearch: function (evt) {
+            var sValue = evt.getParameter("value");
+        
+            // Create a filter for the 'ScopeItemID' property
+            var oFilter = new sap.ui.model.Filter({
+                path: "ScopeItemID", // Ensure the path matches the property in the model
+                operator: sap.ui.model.FilterOperator.Contains,
+                value1: sValue
+            });
+        
+            // Get the binding for the 'items' aggregation of the SelectDialog
+            var oBinding = evt.getSource().getBinding("items");
+        
+            // Check if the binding is present
+            if (oBinding) {
+                console.log("Binding Info:", oBinding);
+
+                // Apply the filter to the binding
+                oBinding.filter([oFilter]);
+            }
         },
         
         _handleValueHelpClose: function (oEvent) {
@@ -156,85 +178,6 @@ function (Controller, JSONModel,Filter,FilterOperator) {
             }
         },
         
- 
- 
-//         onSavePress: function () {
-//             // Get form data from the input fields
-//             var oView = this.getView();
- 
-//             var sCustomer = oView.byId("customerId").getSelected() ? "Customer" : "";
-//             var sProspect = oView.byId("prospectId").getSelected() ? "Prospect" : "";      
-//             var sCustomerName = oView.byId("customerName").getValue();
-//                     var sOpportunity = oView.byId("opportunityNumber").getValue();
-//                     var sPriority = oView.byId("priorityComboBox").getSelectedKey();
- 
-           
-         
-//             var goLiveDate = oView.byId("goLiveDate").getValue(); // Assuming you add an ID for the go-live date input
-//             var revenue = oView.byId("revenue").getValue();
- 
-//             // For MultiComboBox (Countries and Industries)
-//             var selectedCountries = oView.byId("countryBox").getSelectedKeys();
-//             var selectedIndustries = oView.byId("industrybox").getSelectedKeys();
-//             // Initialize the variable to store the non-empty value
-// var customerOrProspect = "";
- 
-// // Assign the non-empty value to customerOrProspect
-// if (sCustomer) {
-//     customerOrProspect = sCustomer;
-// } else if (sProspect) {
-//     customerOrProspect = sProspect;
-// }
-//             var countriesString = selectedCountries.join(", ");
-//             var industriesString = selectedIndustries.join(", ");
- 
-//           // Get the table and selected items
-// var oTable = oView.byId("idProductsTaable");
-// var selectedItems = oTable.getSelectedItems();
- 
-// // Check if there is at least one selected item
-// if (selectedItems.length > 0) {
-//     var item = selectedItems[0];  // Get the first selected item
-//     var context = item.getBindingContext();
- 
-//     // Assign values to variables
-//     var scopeItemID = context.getProperty("ScopeItemID");
-//     var description = context.getProperty("Description");
-//     var lob = context.getProperty("LOB");
-//     var businessArea = context.getProperty("BusinessArea");
- 
-// } else {
-//     console.log("No items selected.");
-// }
- 
-//             // Construct the payload
-//             var payload = {
-//                 customerOrProspect: customerOrProspect,
-//                 customerName: sCustomerName,
-//                 oppurtunityNumber: sOpportunity,
-//                 priority: sPriority,
-//                 goLiveDate: goLiveDate,
-//                 revenue: revenue,
-//                 country:countriesString, // Assuming multiple countries can be selected
-//                 industry: industriesString,
-//                 ScopeItemID: scopeItemID,
-//                 Description: description,
-//                 LOB:lob,
-//                 BusinessArea:businessArea          
-//             };
- 
-//             // Now you can send this payload to your backend or process it further
-//             console.log(payload);
- 
-//             let oModel = this.getView().getModel();
-//             let oBindList = oModel.bindList("/MissingScopeItems");
-//             oBindList.create(payload);
- 
-//             var oRouter = this.getOwnerComponent().getRouter();
-//             oRouter.navTo("RouteRMS",true);
- 
- 
-//         }
  
  
 onSavePress: function () {
@@ -303,13 +246,6 @@ onSavePress: function () {
                 let oBindList = oModel.bindList("/MissingScopeItems");
                 oBindList.create(payloadArray);
 
-
-                
-
-
-
-
-                
                 var oRouter = this.getOwnerComponent().getRouter();
                 oRouter.navTo("RouteRMS",true);
 

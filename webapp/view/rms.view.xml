@@ -31,10 +31,10 @@
                 placeholder="Select Opportunity"
                 width="300px"
             items="{
-                        path: '/MissingScopeItems',
+                        path: '/getUniqueValuesRms(column=\'oppurtunityNumber\')',
                         sorter: { path: '' }
                     }">
-            <core:Item key="{oppurtunityNumber}" text="{oppurtunityNumber}"/>
+            <core:Item key="{keey}" text="{text}"/>
         </MultiComboBox>
         <MultiComboBox
             id="customerComboBox"
@@ -42,10 +42,10 @@
                 placeholder="Select Customer"
                 width="300px"
             items="{
-                        path: '/MissingScopeItems',
+                        path: '/getUniqueValuesRms(column=\'customerName\')',
                         sorter: { path: '' }
                     }">
-            <core:Item key="{customerName}" text="{customerName}"/>
+            <core:Item key="{keey}" text="{text}"/>
         </MultiComboBox>
         <MultiComboBox
             id="scopeIDComboBox"
@@ -53,10 +53,10 @@
                 placeholder="Select ScopeItemID"
                 width="300px"
             items="{
-                        path: '/MissingScopeItems',
+                        path: '/getUniqueValuesRms(column=\'ScopeItemID\')',
                         sorter: { path: '' }
                     }">
-            <core:Item key="{ScopeItemID}" text="{ScopeItemID}"/>
+            <core:Item key="{keey}" text="{text}"/>
         </MultiComboBox>
         <ToolbarSpacer />
 <Button class="export" text="Export"

@@ -38,52 +38,7 @@ sap.ui.define([
                 oRouter.navTo("Routehomepage");
             },
  
-            //this is working fine if i keep single slect mode
-            // onSavePress: function (oEvent) {
-            //     // Get the view and model
-            //     var oView = this.getView();
-            //     var oModel = oView.getModel(); // OData V4 Model
- 
-            //     // Get the table control
-            //     var oTable = oView.byId("idProductsTable");
- 
- 
-            //     // Get the selected item (single selection)
-            //     var oSelectedItem = oTable.getSelectedItem(); // Only works if SingleSelect mode is used
- 
-            //     if (oSelectedItem) {
-            //         // Get autoId (primary key) of the selected row
-            //         var sAutoId = oSelectedItem.getBindingContext().getProperty("autoId");
- 
-            //         // Get selected values of the ComboBoxes
-            //         var sBrandGuardianStatus = oSelectedItem.getCells()[3].getSelectedKey(); // ComboBox for brand
-            //         var sGlobalServicesStatus = oSelectedItem.getCells()[4].getSelectedKey(); // ComboBox for global
- 
-            //         // Create a filter based on autoId to identify the correct record
-            //         let oBindList = oModel.bindList("/MissingScopeItems");
-            //         let aFilter = new sap.ui.model.Filter("autoId", sap.ui.model.FilterOperator.EQ, sAutoId);
- 
-            //         // Apply the filter and request the context for the filtered item
-            //         oBindList.filter([aFilter]).requestContexts().then(function (aContexts) {
-            //             if (aContexts && aContexts.length > 0) {
-            //                 // Update the properties on the matched context
-            //                 aContexts[0].setProperty("brandGuardianStatus", sBrandGuardianStatus);
-            //                 aContexts[0].setProperty("globalServicesStatus", sGlobalServicesStatus);
- 
-            //                 // Submit the changes to the backend
-            //                 oModel.submitBatch("updateGroup").then(function () {
-            //                     sap.m.MessageToast.show("Record updated successfully!");
-            //                 }).catch(function (oError) {
-            //                     sap.m.MessageToast.show("Failed to update record: " + oError.message);
-            //                 });
-            //             }
-            //         }).catch(function (oError) {
-            //             sap.m.MessageToast.show("Failed to retrieve context: " + oError.message);
-            //         });
-            //     } else {
-            //         sap.m.MessageToast.show("No item selected.");
-            //     }
-            // }
+          
  
  
          // on change combobox is working only for one combo box working
