@@ -9,6 +9,11 @@ function (Controller, JSONModel,Filter,FilterOperator) {
  
     return Controller.extend("registermissingscope.controller.createRms", {
         onInit: function () {
+
+            var oBackendModel = this.getOwnerComponent().getModel();
+            oBackendModel.setSizeLimit(100000);
+
+
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("RouteCRMS").attachPatternMatched(this.onObjectMatched, this);
         
@@ -86,7 +91,8 @@ function (Controller, JSONModel,Filter,FilterOperator) {
                         template: new sap.m.StandardListItem({
                             title: "{ScopeItemID}",
                             description: "{ScopeItemDescription}"
-                        })
+                        }),
+                        sorter: new sap.ui.model.Sorter("ScopeItemID", false)
                     },
                     confirm: this._handleValueHelpClose.bind(this),
                     cancel: this._handleValueHelpClose.bind(this)
