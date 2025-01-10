@@ -12,6 +12,7 @@ sap.ui.define([
  
         return Controller.extend("registermissingscope.controller.rms", {
 
+            //some comment
             
             onInit: function () {
                 const oRouter = this.getOwnerComponent().getRouter();
