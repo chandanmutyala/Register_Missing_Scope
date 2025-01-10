@@ -138,7 +138,7 @@ press="onExportPress"></Button>
                         <Text text="{customerName}" />
                         <!-- ComboBox for brandGuardianStatus -->
                         <!-- ComboBox for brandGuardianStatus -->
-                        <!-- <ComboBox
+                        <ComboBox
                             id="brand"
                             selectedKey="{brandGuardianStatus}"
                               change="onBrandComboBoxChange"
@@ -156,10 +156,10 @@ press="onExportPress"></Button>
                                 key="Rejected"
                                 text="Rejected"
                             />
-                        </ComboBox> -->
-                        <Text text="{brandGuardianStatus}" />
+                        </ComboBox>
+                        <!-- <Text text="{brandGuardianStatus}" /> -->
                        
-                        <!-- <ComboBox
+                        <ComboBox
                             id="global"
                             selectedKey="{globalServicesStatus}"
                            
@@ -178,8 +178,8 @@ press="onExportPress"></Button>
                                 text="Rejected"
                        
                             />
-                        </ComboBox> -->
-                         <Text text="{globalServicesStatus}" />
+                        </ComboBox>
+                         <!-- <Text text="{globalServicesStatus}" /> -->
                         <Text text="{ScopeItemID}" />
                         <Text text="{Description}" />
                         <Text text="{priority}" />
