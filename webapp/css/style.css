@@ -101,7 +101,7 @@
 .newButton{
   padding: 10px !important;
   font-size: 20px !important;
-  width: 100px !important;
+  width: 250px !important;
   height: 60px !important;
   float: right;
   margin-right: 10px;
@@ -112,12 +112,19 @@
 .titleRegister{
     font-size: 20px;
     font-weight: bolder;
+    margin-left: 30px;
+    height: 50px !important;
 }
  
  
 .saverms{
     float: right;
-    margin-right: 10px;
+    padding: 10px !important;
+  font-size: 20px !important;
+  width: 100px !important;
+  height: 60px !important;
+  float: right;
+  margin-right: 10px;
 }
  
  

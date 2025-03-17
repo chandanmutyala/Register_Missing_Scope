@@ -10,22 +10,30 @@
             <HBox class="header">
            
                 <Text
-                    text="Register Missing Scopes"
+                    text="Register Missing Scope Items"
                     class="titleRegister"
                 />
                 <ToolbarSpacer />
+
+                <!-- <Button
+            type="Emphasized"
+            text="Save"
+            class="newButton"
+            press="onSavePress"/>
+
                 <Button
                     class="newButton"
                     type="Emphasized"
                     text="NEW"
                     press="onNewPress"
-                />
+                /> -->
+
             </HBox>
  
             <ToolbarSpacer />
         </content>
         <Panel >
-       <MultiComboBox
+       <!-- <MultiComboBox
             id="opportunityComboBox"
                 selectionChange="onComboBoxSelectionChange"
                 placeholder="Select Opportunity"
@@ -35,8 +43,8 @@
                         sorter: { path: '' }
                     }">
             <core:Item key="{keey}" text="{text}"/>
-        </MultiComboBox>
-        <MultiComboBox
+        </MultiComboBox> -->
+        <!-- <MultiComboBox
             id="customerComboBox"
                 selectionChange="onComboBoxSelectionChange"
                 placeholder="Select Customer"
@@ -46,8 +54,8 @@
                         sorter: { path: '' }
                     }">
             <core:Item key="{keey}" text="{text}"/>
-        </MultiComboBox>
-        <MultiComboBox
+        </MultiComboBox> -->
+        <!-- <MultiComboBox
             id="scopeIDComboBox"
                 selectionChange="onComboBoxSelectionChange"
                 placeholder="Select ScopeItemID"
@@ -57,17 +65,28 @@
                         sorter: { path: '' }
                     }">
             <core:Item key="{keey}" text="{text}"/>
-        </MultiComboBox>
-        <ToolbarSpacer />
+        </MultiComboBox> -->
+        <!-- <ToolbarSpacer />
 <Button class="export" text="Export"
 type="Emphasized"
-press="onExportPress"></Button>
+press="onExportPress"></Button> -->
+
+            
+
+                <Button
+                    class="newButton"
+                    type="Emphasized"
+                    text="Register a new missing scope"
+                    press="onNewPress"
+                />
+
+                <Button
+            type="Emphasized"
+            text="Save"
+            class="saverms"
+            press="onSavePress"/>
+
 </Panel>
-        
-        
-        
-        
-        
         
         <Table
             id="idProductsTable"
@@ -103,7 +122,7 @@ press="onExportPress"></Button>
                     hAlign="Center"
                     width="10em"
                 >
-                    <Text text="Brand Guardian Status" />
+                    <Text text="Level 1 Approval Status" />
                 </Column>
                 <Column hAlign="Center" width="10em">
                     <Text text="Global Services Status" />
@@ -138,7 +157,7 @@ press="onExportPress"></Button>
                         <Text text="{customerName}" />
                         <!-- ComboBox for brandGuardianStatus -->
                         <!-- ComboBox for brandGuardianStatus -->
-                        <ComboBox
+                        <!-- <ComboBox
                             id="brand"
                             selectedKey="{brandGuardianStatus}"
                               change="onBrandComboBoxChange"
@@ -156,10 +175,10 @@ press="onExportPress"></Button>
                                 key="Rejected"
                                 text="Rejected"
                             />
-                        </ComboBox>
-                        <!-- <Text text="{brandGuardianStatus}" /> -->
+                        </ComboBox> -->
+                        <Text text="{brandGuardianStatus}" />
                        
-                        <ComboBox
+                        <!-- <ComboBox
                             id="global"
                             selectedKey="{globalServicesStatus}"
                            
@@ -178,13 +197,15 @@ press="onExportPress"></Button>
                                 text="Rejected"
                        
                             />
-                        </ComboBox>
-                         <!-- <Text text="{globalServicesStatus}" /> -->
+                        </ComboBox> -->
+
+                         <Text text="{globalServicesStatus}" />
+
                         <Text text="{ScopeItemID}" />
                         <Text text="{Description}" />
                         <Text text="{priority}" />
                         <Text text="{country}" />
-                        <Text text="{createdBy}" />
+                        <Text text="{userModel>/createdBy}" />
                         <Text text="{createdOn}" />
                        <Button icon="sap-icon://delete" type="Reject" press="onDeleteChange"></Button>
                     </cells>
@@ -192,12 +213,12 @@ press="onExportPress"></Button>
             </items>
         </Table>
  
-        <Button
+        <!-- <Button
             type="Emphasized"
             text="Save"
             class="saverms"
             press="onSavePress"
-        />
+        /> -->
     </Page>
 </mvc:View>
  

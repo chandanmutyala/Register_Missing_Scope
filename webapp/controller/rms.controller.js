@@ -17,6 +17,21 @@ sap.ui.define([
             onInit: function () {
                 const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("RouteRMS").attachPatternMatched(this.onObjectMatched, this);
+
+
+            sap.ui.require(["sap/ushell/Container"], async function (Container) {
+                const UserInfo = await Container.getServiceAsync("UserInfo");
+                let oUserModel = new sap.ui.model.json.JSONModel({
+                    email: UserInfo.getEmail(),
+                    firstName: UserInfo.getFirstName(),
+                    lastName: UserInfo.getLastName(),
+                    fullName: UserInfo.getFullName(),
+                    id: UserInfo.getId()
+                });
+                console.log(UserInfo.getFirstName());
+                console.log(UserInfo.getLastName());
+                this.getView().setModel(oUserModel, "userModel");
+            }.bind(this));
  
  
             },
@@ -246,7 +261,10 @@ sap.ui.define([
                 oSpreadsheet.build().finally(function () {
                     oSpreadsheet.destroy();
                 });
-            }
+            },
+
+
+            
            
         });
  

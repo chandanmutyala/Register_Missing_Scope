@@ -1,268 +1,301 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
-     "sap/ui/model/Filter",
+    "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator"
 ],
-function (Controller, JSONModel,Filter,FilterOperator) {
-    "use strict";
- 
-    return Controller.extend("registermissingscope.controller.createRms", {
-        onInit: function () {
+    function (Controller, JSONModel, Filter, FilterOperator) {
+        "use strict";
 
-            var oBackendModel = this.getOwnerComponent().getModel();
-            oBackendModel.setSizeLimit(100000);
+        return Controller.extend("registermissingscope.controller.createRms", {
+            onInit: function () {
+
+                var oBackendModel = this.getOwnerComponent().getModel();
+                oBackendModel.setSizeLimit(100000);
 
 
-            const oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("RouteCRMS").attachPatternMatched(this.onObjectMatched, this);
-        
-            var oModel = this.getOwnerComponent().getModel("countryModel");
-            this.getView().setModel(oModel, "countryModel");
-        
-            var oModelTable = this.getOwnerComponent().getModel("tableModel") || new JSONModel({
-                ProductCollection: []
-            });
-            this.getOwnerComponent().setModel(oModelTable, "tableModel");
-            this.aSelectedScopeIds = [];
-        
-            // Listen to changes in the MultiInput tokens (added or removed)
-            var oMultiInput = this.byId("scopeIdMultiInput");
-            oMultiInput.attachTokenUpdate(this._onTokenUpdate, this);
-        },
-        
-        onObjectMatched: function () {
-            var oTable = this.getView().byId("Form1");
-            var oBindings = oTable.getBinding("items");
-            oBindings.refresh();
-        },
-        
-        onNavBack: function () {
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("RouteRMS");
-        },
-        
-        _onTokenUpdate: function (oEvent) {
-            var oMultiInput = oEvent.getSource();
-            var aRemovedTokens = oEvent.getParameter("removedTokens");
-            var aAddedTokens = oEvent.getParameter("addedTokens");
-        
-            // Check if the MultiInput source is valid
-            if (!oMultiInput) {
-                console.error("MultiInput source is not valid.");
-                return;
-            }
-        
-            // Handle removed tokens
-            if (aRemovedTokens && aRemovedTokens.length > 0) {
-                aRemovedTokens.forEach(function (oToken) {
-                    var sRemovedKey = oToken.getKey();
-                    var iIndex = this.aSelectedScopeIds.indexOf(sRemovedKey);
-                    if (iIndex > -1) {
-                        this.aSelectedScopeIds.splice(iIndex, 1);
-                    }
-                }, this);
-            }
-        
-            // Handle added tokens
-            if (aAddedTokens && aAddedTokens.length > 0) {
-                aAddedTokens.forEach(function (oToken) {
-                    var sAddedKey = oToken.getKey();
-                    if (this.aSelectedScopeIds.indexOf(sAddedKey) === -1) {
-                        this.aSelectedScopeIds.push(sAddedKey);
-                    }
-                }, this);
-            }
-        
-            console.log("Updated Selected Scope IDs Array:", this.aSelectedScopeIds);  // Log for debugging
-        
-            // Immediately apply filters based on the updated aSelectedScopeIds
-            this.onComboBoxSelectionChange();
-        },
-        
-        onValueHelpRequest: function () {
-            if (!this._oValueHelpDialog) {
-                this._oValueHelpDialog = new sap.m.SelectDialog({
-                    title: "Select Scope ID",
-                    search: this._handleValueHelpSearch.bind(this),
-                    multiSelect: true,
-                    items: {
-                        path: '/ScopeItems',
-                        template: new sap.m.StandardListItem({
-                            title: "{ScopeItemID}",
-                            description: "{ScopeItemDescription}"
-                        }),
-                        sorter: new sap.ui.model.Sorter("ScopeItemID", false)
-                    },
-                    confirm: this._handleValueHelpClose.bind(this),
-                    cancel: this._handleValueHelpClose.bind(this)
+                const oRouter = this.getOwnerComponent().getRouter();
+                oRouter.getRoute("RouteCRMS").attachPatternMatched(this.onObjectMatched, this);
+
+                var oModel = this.getOwnerComponent().getModel("countryModel");
+                this.getView().setModel(oModel, "countryModel");
+
+                var oModelTable = this.getOwnerComponent().getModel("tableModel") || new JSONModel({
+                    ProductCollection: []
                 });
-                this.getView().addDependent(this._oValueHelpDialog);
-            }
-        
-            this._oValueHelpDialog.open();
-        },
-        _handleValueHelpSearch: function (evt) {
-            var sValue = evt.getParameter("value");
-        
-            // Create a filter for the 'ScopeItemID' property
-            var oFilter = new sap.ui.model.Filter({
-                path: "ScopeItemID", // Ensure the path matches the property in the model
-                operator: sap.ui.model.FilterOperator.Contains,
-                value1: sValue
-            });
-        
-            // Get the binding for the 'items' aggregation of the SelectDialog
-            var oBinding = evt.getSource().getBinding("items");
-        
-            // Check if the binding is present
-            if (oBinding) {
-                console.log("Binding Info:", oBinding);
+                this.getOwnerComponent().setModel(oModelTable, "tableModel");
+                this.aSelectedScopeIds = [];
 
-                // Apply the filter to the binding
-                oBinding.filter([oFilter]);
-            }
-        },
-        
-        _handleValueHelpClose: function (oEvent) {
-            var aSelectedItems = oEvent.getParameter("selectedItems");
-            var oMultiInput = this.byId("scopeIdMultiInput");
-        
-            // Clear the previous selections
-            this.aSelectedScopeIds = [];
-            oMultiInput.removeAllTokens();
-        
-            if (aSelectedItems && aSelectedItems.length > 0) {
-                aSelectedItems.forEach(function (oItem) {
-                    var sScopeItemID = oItem.getTitle();
-        
-                    oMultiInput.addToken(new sap.m.Token({
-                        key: sScopeItemID,
-                        text: sScopeItemID
-                    }));
-        
-                    this.aSelectedScopeIds.push(sScopeItemID);
-                }, this);
-            }
-        
-            // Apply combined filters whenever the Scope ID is changed
-            this.onComboBoxSelectionChange();
-        },
-        
-        onComboBoxSelectionChange: function () {
-            var aFilters = [];
-        
-            // Create filters based on selected scope IDs
-            if (this.aSelectedScopeIds.length > 0) {
-                var aScopeFilters = this.aSelectedScopeIds.map(function (sScopeItemID) {
-                    return new sap.ui.model.Filter("ScopeItemID", sap.ui.model.FilterOperator.EQ, sScopeItemID);
-                });
-        
-                // Combine scope filters with OR logic
-                var oScopeIDFilter = new sap.ui.model.Filter({
-                    filters: aScopeFilters,
-                    and: false  // Use OR condition for Scope IDs
-                });
-        
-                aFilters.push(oScopeIDFilter);
-            }
-        
-            // Get the table binding and apply the combined filters
-            var oTable = this.byId("idProductsTaable"); // Ensure this ID is correct
-            var oBinding = oTable.getBinding("items");
-        
-            if (oBinding) {
-                if (aFilters.length > 0) {
-                    console.log("Applying Combined Filter:", aFilters);  // Log filter for debugging
-                    oBinding.filter(aFilters, sap.ui.model.FilterType.Application);
-                } else {
-                    console.log("Clearing filters.");  // Log for debugging
-                    oBinding.filter([]); // Clear filters when nothing is selected
+                // Listen to changes in the MultiInput tokens (added or removed)
+                var oMultiInput = this.byId("scopeIdMultiInput");
+                oMultiInput.attachTokenUpdate(this._onTokenUpdate, this);
+
+                //setmindate
+                var oDatePicker = this.getView().byId("goLiveDate");
+                oDatePicker.setMinDate(new Date());
+            },
+
+            onObjectMatched: function () {
+                var oTable = this.getView().byId("idProductsTaable");
+                var oBindings = oTable.getBinding("items");
+                oBindings.refresh();
+            },
+
+            onNavBack: function () {
+                var oRouter = this.getOwnerComponent().getRouter();
+                oRouter.navTo("RouteRMS");
+            },
+
+            _onTokenUpdate: function (oEvent) {
+                var oMultiInput = oEvent.getSource();
+                var aRemovedTokens = oEvent.getParameter("removedTokens");
+                var aAddedTokens = oEvent.getParameter("addedTokens");
+
+                // Check if the MultiInput source is valid
+                if (!oMultiInput) {
+                    console.error("MultiInput source is not valid.");
+                    return;
                 }
-            } else {
-                console.error("Table binding not found.");  // Debugging information
-            }
-        },
-        
- 
- 
-onSavePress: function () {
-    var oView = this.getView();
- 
-    // Get form data from the input fields
-    var sCustomer = oView.byId("customerId").getSelected() ? "Customer" : "";
-    var sProspect = oView.byId("prospectId").getSelected() ? "Prospect" : "";
-    var sCustomerName = oView.byId("customerName").getValue();
-    var sOpportunity = oView.byId("opportunityNumber").getValue();
-    var sPriority = oView.byId("priorityComboBox").getSelectedKey();
-    var goLiveDate = oView.byId("goLiveDate").getValue();
-    var revenue = oView.byId("revenue").getValue();
- 
-    // For MultiComboBox (Countries and Industries)
-    var selectedCountries = oView.byId("countryBox").getSelectedKeys();
-    var selectedIndustries = oView.byId("industrybox").getSelectedKeys();
-   
-    var customerOrProspect = sCustomer || sProspect;
-   
-    var countriesString = selectedCountries.join(", ");
-    var industriesString = selectedIndustries.join(", ");
- 
-    // Get the table and selected items
-    var oTable = oView.byId("idProductsTaable");
-    var selectedItems = oTable.getSelectedItems();
- 
-    if (selectedItems.length === 0) {
-        // No items selected, show error message
-        sap.m.MessageToast.show("Please select at least one Scope Item.");
-        return;
-    }
- 
-    // Prepare payloads for each selected item
-    var payloadArray = selectedItems.map(function (item) {
-        var context = item.getBindingContext();
-       
-       var scopeItemID=context.getProperty("ScopeItemID");
-        var description=context.getProperty("Description");
-        var lob =context.getProperty("LOB");
-        var businessArea= context.getProperty("BusinessArea")
-       
-        return {
-            customerOrProspect: customerOrProspect,
-            customerName: sCustomerName,
-            oppurtunityNumber: sOpportunity,
-            priority: sPriority,
-            goLiveDate: goLiveDate,
-            revenue: revenue,
-            country: countriesString,
-            industry: industriesString,
-            ScopeItemID:scopeItemID ,
-            Description:description ,
-            LOB: lob,
-            BusinessArea:businessArea
-        };
-    });
-    console.log(payloadArray);
 
-   
+                // Handle removed tokens
+                if (aRemovedTokens && aRemovedTokens.length > 0) {
+                    aRemovedTokens.forEach(function (oToken) {
+                        var sRemovedKey = oToken.getKey();
+                        var iIndex = this.aSelectedScopeIds.indexOf(sRemovedKey);
+                        if (iIndex > -1) {
+                            this.aSelectedScopeIds.splice(iIndex, 1);
+                        }
+                    }, this);
+                }
+
+                // Handle added tokens
+                if (aAddedTokens && aAddedTokens.length > 0) {
+                    aAddedTokens.forEach(function (oToken) {
+                        var sAddedKey = oToken.getKey();
+                        if (this.aSelectedScopeIds.indexOf(sAddedKey) === -1) {
+                            this.aSelectedScopeIds.push(sAddedKey);
+                        }
+                    }, this);
+                }
+
+                console.log("Updated Selected Scope IDs Array:", this.aSelectedScopeIds);  // Log for debugging
+
+                // Immediately apply filters based on the updated aSelectedScopeIds
+                this.onComboBoxSelectionChange();
+            },
+
+            onValueHelpRequest: function () {
+                if (!this._oValueHelpDialog) {
+                    this._oValueHelpDialog = new sap.m.SelectDialog({
+                        title: "Select Scope ID",
+                        search: this._handleValueHelpSearch.bind(this),
+                        multiSelect: true,
+                        items: {
+                            path: '/ScopeItems',
+                            template: new sap.m.StandardListItem({
+                                title: "{ScopeItemID}",
+                                description: "{ScopeItemDescription}"
+                            }),
+                            sorter: new sap.ui.model.Sorter("ScopeItemID", false)
+                        },
+                        confirm: this._handleValueHelpClose.bind(this),
+                        cancel: this._handleValueHelpClose.bind(this)
+                    });
+                    this.getView().addDependent(this._oValueHelpDialog);
+                }
+
+                this._oValueHelpDialog.open();
+            },
+            _handleValueHelpSearch: function (evt) {
+                var sValue = evt.getParameter("value");
+
+                // Create a filter for the 'ScopeItemID' property
+                var oFilter = new sap.ui.model.Filter({
+                    path: "ScopeItemID", // Ensure the path matches the property in the model
+                    operator: sap.ui.model.FilterOperator.Contains,
+                    value1: sValue
+                });
+
+                // Get the binding for the 'items' aggregation of the SelectDialog
+                var oBinding = evt.getSource().getBinding("items");
+
+                // Check if the binding is present
+                if (oBinding) {
+                    console.log("Binding Info:", oBinding);
+
+                    // Apply the filter to the binding
+                    oBinding.filter([oFilter]);
+                }
+            },
+
+            _handleValueHelpClose: function (oEvent) {
+                var aSelectedItems = oEvent.getParameter("selectedItems");
+                var oMultiInput = this.byId("scopeIdMultiInput");
+
+                // Clear the previous selections
+                this.aSelectedScopeIds = [];
+                oMultiInput.removeAllTokens();
+
+                if (aSelectedItems && aSelectedItems.length > 0) {
+                    aSelectedItems.forEach(function (oItem) {
+                        var sScopeItemID = oItem.getTitle();
+
+                        oMultiInput.addToken(new sap.m.Token({
+                            key: sScopeItemID,
+                            text: sScopeItemID
+                        }));
+
+                        this.aSelectedScopeIds.push(sScopeItemID);
+                    }, this);
+                }
+
+                // Apply combined filters whenever the Scope ID is changed
+                this.onComboBoxSelectionChange();
+            },
+
+            onComboBoxSelectionChange: function () {
+                var aFilters = [];
+
+                // Create filters based on selected scope IDs
+                if (this.aSelectedScopeIds.length > 0) {
+                    var aScopeFilters = this.aSelectedScopeIds.map(function (sScopeItemID) {
+                        return new sap.ui.model.Filter("ScopeItemID", sap.ui.model.FilterOperator.EQ, sScopeItemID);
+                    });
+
+                    // Combine scope filters with OR logic
+                    var oScopeIDFilter = new sap.ui.model.Filter({
+                        filters: aScopeFilters,
+                        and: false  // Use OR condition for Scope IDs
+                    });
+
+                    aFilters.push(oScopeIDFilter);
+                }
+
+                // Get the table binding and apply the combined filters
+                var oTable = this.byId("idProductsTaable"); // Ensure this ID is correct
+                var oBinding = oTable.getBinding("items");
+
+                if (oBinding) {
+                    if (aFilters.length > 0) {
+                        console.log("Applying Combined Filter:", aFilters);  // Log filter for debugging
+                        oBinding.filter(aFilters, sap.ui.model.FilterType.Application);
+                    } else {
+                        console.log("Clearing filters.");  // Log for debugging
+                        oBinding.filter([]); // Clear filters when nothing is selected
+                    }
+                } else {
+                    console.error("Table binding not found.");  // Debugging information
+                }
+            },
 
 
 
-    // Use OData V4's bindList().create() to send the payloads
-    let oModel = this.getView().getModel();
+            onSavePress: function () {
+                var oView = this.getView();
+
+                // Get form data from the input fields
+                var sCustomer = oView.byId("customerId").getSelected() ? "Customer" : "";
+                var sProspect = oView.byId("prospectId").getSelected() ? "Prospect" : "";
+                var sCustomerName = oView.byId("customerName").getValue();
+                var sOpportunity = oView.byId("opportunityNumber").getValue();
+                var sPriority = oView.byId("priorityComboBox").getSelectedKey();
+                var goLiveDate = oView.byId("goLiveDate").getValue();
+                var revenue = oView.byId("revenue").getValue();
+
+                // For MultiComboBox (Countries and Industries)
+                var selectedCountry = oView.byId("countryBox").getSelectedKey();
+
+                //var selectedCountries = oView.byId("countryBox").getSelectedKeys();
+                var selectedIndustries = oView.byId("industrybox").getSelectedKeys();
+
+                var customerOrProspect = sCustomer || sProspect;
+
+                var countriesString = selectedCountries.join(", ");
+                var industriesString = selectedIndustries.join(", ");
+
+                // Get the table and selected items
+                var oTable = oView.byId("idProductsTaable");
+                var selectedItems = oTable.getSelectedItems();
+
+                if (selectedItems.length === 0) {
+                    // No items selected, show error message
+                    sap.m.MessageToast.show("Please select at least one Scope Item.");
+                    return;
+                }
+
+                // Prepare payloads for each selected item
+                var payloadArray = selectedItems.map(function (item) {
+                    var context = item.getBindingContext();
+
+                    var scopeItemID = context.getProperty("ScopeItemID");
+                    var description = context.getProperty("Description");
+                    var lob = context.getProperty("LOB");
+                    var businessArea = context.getProperty("BusinessArea");
+                    var userInfo = sap.ushell.Container.getUser();
+
+                    return {
+                        customerOrProspect: customerOrProspect,
+                        customerName: sCustomerName,
+                        oppurtunityNumber: sOpportunity,
+                        priority: sPriority,
+                        goLiveDate: goLiveDate,
+                        revenue: revenue,
+                        country: countriesString,
+                        industry: industriesString,
+                        ScopeItemID: scopeItemID,
+                        Description: description,
+                        LOB: lob,
+                        BusinessArea: businessArea,
+                        createdBy: (userInfo.getFirstName + " " + "userInfo.lastname")
+                    };
+                });
+                console.log(payloadArray);
+
+                // Use OData V4's bindList().create() to send the payloads
+                let oModel = this.getView().getModel();
                 let oBindList = oModel.bindList("/MissingScopeItems");
                 oBindList.create(payloadArray);
 
                 var oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("RouteRMS",true);
+                oRouter.navTo("RouteRMS", true);
 
                 window.location.reload();
+            },
 
 
+            onInputChange: function (oEvent) {
+                let oInput = oEvent.getSource();
+                let sValue = oInput.getValue();
+             
+                // Remove all non-numeric characters
+                let iValue = sValue.replace(/\D/g, ""); // Keeps only numbers
+             
+                // Restrict to a maximum of 20 digits
+                if (iValue.length > 6) {
+                    iValue = iValue.substring(0, 20);
+                }
+             
+                // Format with thousand separators (e.g., 100,000)
+                //let formattedValue = new Intl.NumberFormat("en-US").format(iValue);
+             
+                // Update the input field
+                oInput.setValue(iValue);
+            },
 
-   
-}
- 
-    });
- 
-})
- 
+            onCheckBoxSelect: function (oEvent) {
+                let oSelectedCheckBox = oEvent.getSource();
+                let oView = this.getView();
+            
+                let oCustomerCheckBox = oView.byId("customerId");
+                let oProspectCheckBox = oView.byId("prospectId");
+            
+                // Ensure only one checkbox is selected at a time
+                if (oSelectedCheckBox === oCustomerCheckBox && oCustomerCheckBox.getSelected()) {
+                    oProspectCheckBox.setSelected(false);
+                } else if (oSelectedCheckBox === oProspectCheckBox && oProspectCheckBox.getSelected()) {
+                    oCustomerCheckBox.setSelected(false);
+                }
+            }
+        });
+
+    })
