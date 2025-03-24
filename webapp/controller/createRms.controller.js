@@ -2,9 +2,11 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
+    "sap/ui/model/FilterOperator",
+    "sap/ushell/Container",
+    "sap/m/MessageBox"
 ],
-    function (Controller, JSONModel, Filter, FilterOperator) {
+    function (Controller, JSONModel, Filter, FilterOperator, Container, MessageBox) {
         "use strict";
 
         return Controller.extend("registermissingscope.controller.createRms", {
@@ -210,7 +212,7 @@ sap.ui.define([
 
                 var customerOrProspect = sCustomer || sProspect;
 
-                var countriesString = selectedCountries.join(", ");
+                var countriesString = selectedCountry ;//selectedCountries.join(", ");
                 var industriesString = selectedIndustries.join(", ");
 
                 // Get the table and selected items
@@ -232,6 +234,8 @@ sap.ui.define([
                     var lob = context.getProperty("LOB");
                     var businessArea = context.getProperty("BusinessArea");
                     var userInfo = sap.ushell.Container.getUser();
+                    var fullname = userInfo.getFullName();
+                    console.log(fullname);
 
                     return {
                         customerOrProspect: customerOrProspect,
@@ -246,7 +250,7 @@ sap.ui.define([
                         Description: description,
                         LOB: lob,
                         BusinessArea: businessArea,
-                        createdBy: (userInfo.getFirstName + " " + "userInfo.lastname")
+                        createdBy: fullname
                     };
                 });
                 console.log(payloadArray);
@@ -256,10 +260,17 @@ sap.ui.define([
                 let oBindList = oModel.bindList("/MissingScopeItems");
                 oBindList.create(payloadArray);
 
-                var oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("RouteRMS", true);
-
-                window.location.reload();
+                var thatVar = this;
+                MessageBox.show("New missing scope items has been created successfully", {
+                    icon: MessageBox.Icon.INFORMATION,
+                    title: "Success",
+                    actions: [MessageBox.Action.OK],
+                    onClose: function(oAction) {
+                        var oRouter = thatVar.getOwnerComponent().getRouter();
+                        oRouter.navTo("RouteRMS", true);
+                        window.location.reload();
+                    }
+                  });
             },
 
 

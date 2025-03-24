@@ -16,46 +16,24 @@ sap.ui.define([
             
             onInit: function () {
                 const oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("RouteRMS").attachPatternMatched(this.onObjectMatched, this);
-
-
-            sap.ui.require(["sap/ushell/Container"], async function (Container) {
-                const UserInfo = await Container.getServiceAsync("UserInfo");
-                let oUserModel = new sap.ui.model.json.JSONModel({
-                    email: UserInfo.getEmail(),
-                    firstName: UserInfo.getFirstName(),
-                    lastName: UserInfo.getLastName(),
-                    fullName: UserInfo.getFullName(),
-                    id: UserInfo.getId()
-                });
-                console.log(UserInfo.getFirstName());
-                console.log(UserInfo.getLastName());
-                this.getView().setModel(oUserModel, "userModel");
-            }.bind(this));
- 
- 
+                oRouter.getRoute("RouteRMS").attachPatternMatched(this.onObjectMatched, this);
             },
+
             onObjectMatched : function(){
                 var oTable = this.getView().byId("idProductsTable");
                 var oBindings = oTable.getBinding("items");
                 oBindings.refresh() ;
-            
             },
             
             onNewPress: function () {
-
-
-                
                 var oRouter = this.getOwnerComponent().getRouter();
                 oRouter.navTo("RouteCRMS");
             },
+
             onNavBack: function () {
                 var oRouter = this.getOwnerComponent().getRouter();
                 oRouter.navTo("Routehomepage");
             },
- 
-          
- 
  
          // on change combobox is working only for one combo box working
             onBrandComboBoxChange: function (oEvent) {
